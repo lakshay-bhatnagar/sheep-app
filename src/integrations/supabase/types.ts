@@ -218,11 +218,15 @@ export type Database = {
           date_of_birth: string | null
           dating_prompt_answer: string | null
           email: string | null
+          fun_prompts: Json | null
           gender: string | null
+          government_id_url: string | null
           id: string
+          interests: Json | null
           is_active: boolean
           is_verified: boolean
           name: string
+          onboarding_completed: boolean
           phone: string | null
           profile_picture_url: string | null
           religion: string | null
@@ -236,11 +240,15 @@ export type Database = {
           date_of_birth?: string | null
           dating_prompt_answer?: string | null
           email?: string | null
+          fun_prompts?: Json | null
           gender?: string | null
+          government_id_url?: string | null
           id?: string
+          interests?: Json | null
           is_active?: boolean
           is_verified?: boolean
           name?: string
+          onboarding_completed?: boolean
           phone?: string | null
           profile_picture_url?: string | null
           religion?: string | null
@@ -254,11 +262,15 @@ export type Database = {
           date_of_birth?: string | null
           dating_prompt_answer?: string | null
           email?: string | null
+          fun_prompts?: Json | null
           gender?: string | null
+          government_id_url?: string | null
           id?: string
+          interests?: Json | null
           is_active?: boolean
           is_verified?: boolean
           name?: string
+          onboarding_completed?: boolean
           phone?: string | null
           profile_picture_url?: string | null
           religion?: string | null
@@ -365,6 +377,7 @@ export type Database = {
           id: string
           max_age: number | null
           min_age: number | null
+          preferred_days: Json | null
           preferred_gender: string | null
           preferred_religion: string | null
           preferred_time_slots: Json | null
@@ -377,6 +390,7 @@ export type Database = {
           id?: string
           max_age?: number | null
           min_age?: number | null
+          preferred_days?: Json | null
           preferred_gender?: string | null
           preferred_religion?: string | null
           preferred_time_slots?: Json | null
@@ -389,6 +403,7 @@ export type Database = {
           id?: string
           max_age?: number | null
           min_age?: number | null
+          preferred_days?: Json | null
           preferred_gender?: string | null
           preferred_religion?: string | null
           preferred_time_slots?: Json | null
