@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Clock, MessageCircle, Coffee } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import { motion } from "framer-motion";
 
 interface MatchWithProfile {
   id: string;
@@ -13,6 +14,16 @@ interface MatchWithProfile {
   other_name: string;
   other_picture: string | null;
 }
+
+const statusConfig: Record<string, { label: string; icon: typeof Clock }> = {
+  pending_cafe_selection: { label: "Pick a cafe", icon: Coffee },
+  cafe_proposed: { label: "Cafe proposed", icon: Coffee },
+  awaiting_payment: { label: "Pay ₹199", icon: Clock },
+  confirmed: { label: "Date confirmed!", icon: MessageCircle },
+  completed: { label: "Completed", icon: Clock },
+  cancelled: { label: "Cancelled", icon: Clock },
+  expired: { label: "Expired", icon: Clock },
+};
 
 const MatchesPage = () => {
   const { user } = useAuth();
@@ -29,15 +40,9 @@ const MatchesPage = () => {
         .or(`user1_id.eq.${user.id},user2_id.eq.${user.id}`)
         .order("created_at", { ascending: false });
 
-      if (!data) {
-        setLoading(false);
-        return;
-      }
+      if (!data) { setLoading(false); return; }
 
-      const otherIds = data.map((m) =>
-        m.user1_id === user.id ? m.user2_id : m.user1_id
-      );
-
+      const otherIds = data.map((m) => m.user1_id === user.id ? m.user2_id : m.user1_id);
       const { data: profiles } = await supabase
         .from("profiles")
         .select("user_id, name, profile_picture_url")
@@ -45,7 +50,7 @@ const MatchesPage = () => {
 
       const profileMap = new Map(profiles?.map((p) => [p.user_id, p]) ?? []);
 
-      const enriched: MatchWithProfile[] = data.map((m) => {
+      setMatches(data.map((m) => {
         const otherId = m.user1_id === user.id ? m.user2_id : m.user1_id;
         const profile = profileMap.get(otherId);
         return {
@@ -57,24 +62,12 @@ const MatchesPage = () => {
           other_name: profile?.name ?? "Someone",
           other_picture: profile?.profile_picture_url ?? null,
         };
-      });
-
-      setMatches(enriched);
+      }));
       setLoading(false);
     };
 
     fetchMatches();
   }, [user]);
-
-  const statusConfig: Record<string, { label: string; color: string; icon: typeof Clock }> = {
-    pending_cafe_selection: { label: "Pick a cafe", color: "bg-gold text-gold-foreground", icon: Coffee },
-    cafe_proposed: { label: "Cafe proposed", color: "bg-peach text-foreground", icon: Coffee },
-    awaiting_payment: { label: "Pay ₹199", color: "bg-warm text-warm-foreground", icon: Clock },
-    confirmed: { label: "Date confirmed!", color: "bg-success text-success-foreground", icon: MessageCircle },
-    completed: { label: "Completed", color: "bg-muted text-muted-foreground", icon: Clock },
-    cancelled: { label: "Cancelled", color: "bg-destructive/10 text-destructive", icon: Clock },
-    expired: { label: "Expired", color: "bg-muted text-muted-foreground", icon: Clock },
-  };
 
   if (loading) {
     return (
@@ -90,7 +83,7 @@ const MatchesPage = () => {
         <div className="text-center">
           <span className="text-5xl block mb-4">💕</span>
           <h2 className="font-display text-2xl text-foreground mb-2">No matches yet</h2>
-          <p className="text-muted-foreground">Keep swiping! Your person is out there.</p>
+          <p className="text-muted-foreground text-sm">Keep swiping! Your person is out there.</p>
         </div>
       </div>
     );
@@ -100,15 +93,18 @@ const MatchesPage = () => {
     <div>
       <h1 className="font-display text-2xl text-foreground mb-6">Your Matches</h1>
       <div className="space-y-3">
-        {matches.map((match) => {
+        {matches.map((match, i) => {
           const config = statusConfig[match.status] ?? statusConfig.expired;
           const StatusIcon = config.icon;
           return (
-            <div
+            <motion.div
               key={match.id}
-              className="bg-card rounded-2xl p-4 border border-border shadow-soft flex items-center gap-4"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.05 }}
+              className="rounded-2xl p-4 border border-border flex items-center gap-4 hover:bg-secondary/30 transition-colors"
             >
-              <div className="w-14 h-14 rounded-full bg-peach flex items-center justify-center shrink-0 overflow-hidden">
+              <div className="w-14 h-14 rounded-full bg-secondary flex items-center justify-center shrink-0 overflow-hidden">
                 {match.other_picture ? (
                   <img src={match.other_picture} alt="" className="w-full h-full object-cover" />
                 ) : (
@@ -116,16 +112,16 @@ const MatchesPage = () => {
                 )}
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="font-semibold text-foreground truncate">{match.other_name}</h3>
+                <h3 className="font-medium text-foreground truncate">{match.other_name}</h3>
                 <p className="text-xs text-muted-foreground">
                   {formatDistanceToNow(new Date(match.created_at), { addSuffix: true })}
                 </p>
               </div>
-              <div className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-medium ${config.color}`}>
+              <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-border text-xs font-medium text-foreground">
                 <StatusIcon className="w-3 h-3" />
                 {config.label}
               </div>
-            </div>
+            </motion.div>
           );
         })}
       </div>

@@ -33,9 +33,23 @@ export function useRequireAuth() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if (!loading && !user) {
+    if (loading) return;
+    if (!user) {
       navigate("/auth");
+      return;
     }
+
+    // Check onboarding status
+    supabase
+      .from("profiles")
+      .select("onboarding_completed")
+      .eq("user_id", user.id)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (data && !data.onboarding_completed) {
+          navigate("/onboarding");
+        }
+      });
   }, [user, loading, navigate]);
 
   return { user, loading };

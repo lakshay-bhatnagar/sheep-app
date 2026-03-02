@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { motion } from "framer-motion";
 
 const AuthPage = () => {
   const [searchParams] = useSearchParams();
@@ -37,34 +38,35 @@ const AuthPage = () => {
         if (error) throw error;
         toast({
           title: "Check your email",
-          description: "We sent you a verification link. Click it to activate your account.",
+          description: "We sent you a verification link from Sheep. Click it to activate your account.",
         });
       }
     } catch (err: any) {
-      toast({
-        title: "Error",
-        description: err.message,
-        variant: "destructive",
-      });
+      toast({ title: "Error", description: err.message, variant: "destructive" });
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-warm flex items-center justify-center px-4">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <span className="text-4xl block mb-2">🐑</span>
+    <div className="min-h-screen bg-background flex items-center justify-center px-4">
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="w-full max-w-sm"
+      >
+        <div className="text-center mb-10">
+          <span className="text-5xl block mb-3">🐑</span>
           <h1 className="font-display text-3xl text-foreground">
             {isLogin ? "Welcome back" : "Join the flock"}
           </h1>
-          <p className="text-muted-foreground mt-2">
+          <p className="text-muted-foreground mt-2 text-sm">
             {isLogin ? "Sign in to find your next date" : "Create your account and start matching"}
           </p>
         </div>
 
-        <div className="bg-card rounded-2xl p-8 shadow-elevated border border-border">
+        <div className="border border-border rounded-2xl p-8">
           <form onSubmit={handleSubmit} className="space-y-4">
             {!isLogin && (
               <div className="space-y-2">
@@ -75,6 +77,7 @@ const AuthPage = () => {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   required={!isLogin}
+                  className="rounded-xl"
                 />
               </div>
             )}
@@ -87,6 +90,7 @@ const AuthPage = () => {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
+                className="rounded-xl"
               />
             </div>
             <div className="space-y-2">
@@ -99,9 +103,10 @@ const AuthPage = () => {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 minLength={6}
+                className="rounded-xl"
               />
             </div>
-            <Button variant="hero" className="w-full" size="lg" disabled={loading}>
+            <Button className="w-full" size="lg" disabled={loading}>
               {loading ? "Please wait..." : isLogin ? "Sign In" : "Create Account"}
             </Button>
           </form>
@@ -116,7 +121,7 @@ const AuthPage = () => {
             </button>
           </div>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };
